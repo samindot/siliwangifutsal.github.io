@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Admin Calendar</h2>
+  <button onclick="logout()">Logout</button>
+
+  <div id="calendar"></div>
+
+  <script type="module">
+    import { requireAuth, logout } from './js/auth.js'
+    import { getBookings, createBooking } from './js/api.js'
+
+    window.logout = logout
+
+    await requireAuth()
+
+    const today = new Date().toISOString().split('T')[0]
+    const bookings = await getBookings(today)
+
+    const container = document.getElementById('calendar')
+
+    for (let hour = 8; hour <= 22; hour++) {
+      const slot = document.createElement('div')
+      slot.innerText = `${hour}:00`
+
+      const booking = bookings.find(b =>
+        hour >= b.start_time && hour < b.end_time
+      )
+
+      if (booking) {
+        slot.style.background = getColor(booking.payment_status)
+      } else {
+        slot.onclick = async () => {
+          try {
+            await createBooking({
+              p_field_id: 'FIELD_ID_LAP1',
+              p_date: today,
+              p_start: hour,
+              p_duration: 2,
+              p_amount_paid: 0
+            })
+            location.reload()
+          } catch (e) {
+            alert(e.message)
+          }
+        }
+      }
+
+      container.appendChild(slot)
+    }
+
+    function getColor(status) {
+      if (status === 'paid') return 'green'
+      if (status === 'partial') return 'yellow'
+      return 'red'
+    }
+  </script>
+</body>
+</html>
