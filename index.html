@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Public Calendar</h2>
+  <a href="/login.html">Login</a>
+
+  <div id="calendar"></div>
+
+  <script type="module">
+    import { getBookings } from './js/api.js'
+
+    const today = new Date().toISOString().split('T')[0]
+    const bookings = await getBookings(today)
+
+    const container = document.getElementById('calendar')
+
+    for (let hour = 8; hour <= 22; hour++) {
+      const slot = document.createElement('div')
+      slot.innerText = `${hour}:00`
+
+      const booking = bookings.find(b =>
+        hour >= b.start_time && hour < b.end_time
+      )
+
+      if (booking) {
+        slot.style.background =
+          booking.payment_status === 'paid'
+            ? 'green'
+            : booking.payment_status === 'partial'
+            ? 'yellow'
+            : 'red'
+      }
+
+      container.appendChild(slot)
+    }
+  </script>
+</body>
+</html>
