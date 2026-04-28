@@ -44,6 +44,10 @@
 import { requireAuth, logout } from './js/auth.js'
 import { getBookings, createBooking } from './js/api.js'
 
+let selectedField = null
+let selectedHour = null
+let selectedDuration = 2
+
 window.logout = logout
 await requireAuth()
 
