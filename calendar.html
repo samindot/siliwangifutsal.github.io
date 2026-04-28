@@ -21,9 +21,9 @@
     <input id="customer_name" placeholder="Nama" />
 
     <div class="duration">
-      <button onclick="setDuration(1)">1 Jam</button>
-      <button onclick="setDuration(2)" class="active">2 Jam</button>
-      <button onclick="setDuration(3)">3 Jam</button>
+      <button onclick="setDuration(1, this)">1 Jam</button>
+<button onclick="setDuration(2, this)" class="active">2 Jam</button>
+<button onclick="setDuration(3, this)">3 Jam</button>
     </div>
 
     <input id="amount_paid" type="number" placeholder="DP / Bayar" />
@@ -91,6 +91,16 @@ if (!booking) {
     selectedField = field.id
     selectedHour = hour
 
+    document.getElementById('customer_name').value = ''
+document.getElementById('amount_paid').value = ''
+
+selectedDuration = 2
+
+document.querySelectorAll('.duration button')
+  .forEach(btn => btn.classList.remove('active'))
+
+document.querySelectorAll('.duration button')[1].classList.add('active')
+    
     document.getElementById('selectedSlot').innerText =
       `${field.name} - ${hour}:00`
 
@@ -140,7 +150,6 @@ window.submitBooking = async () => {
   } catch (e) {
     alert(e.message)
   }
-}
 }
 </script>
 
