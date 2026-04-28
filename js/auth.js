@@ -6,7 +6,7 @@ export async function login(email, password) {
     password
   })
   if (error) throw error
-  window.location.href = '/calendar.html'
+  window.location.href = './calendar.html'
 }
 
 export async function register(email, password) {
@@ -15,17 +15,17 @@ export async function register(email, password) {
     password
   })
   if (error) throw error
-  window.location.href = '/calendar.html'
+  window.location.href = './calendar.html'
 }
 
 export async function requireAuth() {
   const { data } = await supabase.auth.getSession()
   if (!data.session) {
-    window.location.href = '/login.html'
+    window.location.href = './login.html'
   }
 }
 
 export async function logout() {
   await supabase.auth.signOut()
-  window.location.href = '/login.html'
+  window.location.href = './login.html'
 }
