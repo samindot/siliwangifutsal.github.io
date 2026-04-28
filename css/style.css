@@ -1,0 +1,65 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f6fa;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  background: #111;
+  color: white;
+  padding: 20px;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(4, 1fr);
+  gap: 4px;
+}
+
+.col-header {
+  font-weight: bold;
+  text-align: center;
+}
+
+.time-col {
+  font-size: 12px;
+  text-align: right;
+  padding-right: 5px;
+}
+
+.slot {
+  height: 40px;
+  background: #ddd;
+  cursor: pointer;
+}
+
+.slot:hover {
+  opacity: 0.8;
+}
+
+.slot.paid {
+  background: #2ecc71;
+}
+
+.slot.partial {
+  background: #f1c40f;
+}
+
+.slot.unpaid {
+  background: #e74c3c;
+}
