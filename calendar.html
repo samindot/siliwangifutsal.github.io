@@ -12,6 +12,26 @@
   </aside>
 
   <main class="main">
+    <div id="bookingModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>New Booking</h3>
+
+    <p id="selectedSlot"></p>
+
+    <input id="customer_name" placeholder="Nama" />
+
+    <div class="duration">
+      <button onclick="setDuration(1)">1 Jam</button>
+      <button onclick="setDuration(2)" class="active">2 Jam</button>
+      <button onclick="setDuration(3)">3 Jam</button>
+    </div>
+
+    <input id="amount_paid" type="number" placeholder="DP / Bayar" />
+
+    <button onclick="submitBooking()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
     <div class="header">
       <h2>Booking Calendar</h2>
     </div>
