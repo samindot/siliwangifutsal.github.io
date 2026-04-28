@@ -2,12 +2,12 @@
 <html>
 <body>
   <h2>Public Calendar</h2>
-  <a href="futsal-app/login.html">Login</a>
+  <a href="/login.html">Login</a>
 
   <div id="calendar"></div>
 
   <script type="module">
-    import { getBookings } from 'futsal-app/js/api.js'
+    import { getBookings } from './js/api.js'
 
     const today = new Date().toISOString().split('T')[0]
     const bookings = await getBookings(today)
