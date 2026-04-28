@@ -6,6 +6,15 @@ export async function createBooking(payload) {
   return data
 }
 
+export async function getFields() {
+  const { data, error } = await supabase
+    .from('fields')
+    .select('*')
+
+  if (error) throw error
+  return data
+}
+
 export async function getBookings(date) {
   const { data, error } = await supabase
     .from('bookings')
