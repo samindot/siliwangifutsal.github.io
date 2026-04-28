@@ -12,26 +12,29 @@
   </aside>
 
   <main class="main">
+
+    <!-- MODAL -->
     <div id="bookingModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>New Booking</h3>
+      <div class="modal-content">
+        <h3>New Booking</h3>
 
-    <p id="selectedSlot"></p>
+        <p id="selectedSlot"></p>
 
-    <input id="customer_name" placeholder="Nama" />
+        <input id="customer_name" placeholder="Nama" />
 
-    <div class="duration">
-      <button onclick="setDuration(1, this)">1 Jam</button>
-<button onclick="setDuration(2, this)" class="active">2 Jam</button>
-<button onclick="setDuration(3, this)">3 Jam</button>
+        <div class="duration">
+          <button onclick="setDuration(1, this)">1 Jam</button>
+          <button onclick="setDuration(2, this)" class="active">2 Jam</button>
+          <button onclick="setDuration(3, this)">3 Jam</button>
+        </div>
+
+        <input id="amount_paid" type="number" placeholder="DP / Bayar" />
+
+        <button onclick="submitBooking()">Save</button>
+        <button onclick="closeModal()">Cancel</button>
+      </div>
     </div>
 
-    <input id="amount_paid" type="number" placeholder="DP / Bayar" />
-
-    <button onclick="submitBooking()">Save</button>
-    <button onclick="closeModal()">Cancel</button>
-  </div>
-</div>
     <div class="header">
       <h2>Booking Calendar</h2>
     </div>
@@ -42,32 +45,29 @@
 
 <script type="module">
 import { requireAuth, logout } from './js/auth.js'
-import { getBookings, createBooking } from './js/api.js'
+import { getBookings, createBooking, getFields } from './js/api.js'
 
 let selectedField = null
 let selectedHour = null
 let selectedDuration = 2
 
 window.logout = logout
+
 await requireAuth()
 
-const fields = [
-  { id: 'FIELD_ID_1', name: 'Lap 1' },
-  { id: 'FIELD_ID_2', name: 'Lap 2' },
-  { id: 'FIELD_ID_3', name: 'Lap 3' },
-  { id: 'FIELD_ID_4', name: 'Lap 4' }
-]
-
 const today = new Date().toISOString().split('T')[0]
+
+// ✅ ambil dari DB
+const fields = await getFields()
 const bookings = await getBookings(today)
 
 const calendar = document.getElementById('calendar')
 
-// header row
+// HEADER
 calendar.innerHTML = `<div class="time-col"></div>` +
   fields.map(f => `<div class="col-header">${f.name}</div>`).join('')
 
-// rows
+// GRID
 for (let hour = 8; hour <= 22; hour++) {
   calendar.innerHTML += `<div class="time-col">${hour}:00</div>`
 
@@ -79,43 +79,52 @@ for (let hour = 8; hour <= 22; hour++) {
     )
 
     let className = 'slot'
-    if (booking) {
-      className += ' ' + booking.payment_status
-    }
+    if (booking) className += ' ' + booking.payment_status
 
     const slot = document.createElement('div')
     slot.className = className
 
-if (!booking) {
-  slot.onclick = () => {
-    selectedField = field.id
-    selectedHour = hour
+    if (!booking) {
+      slot.innerText = '+'
 
-    document.getElementById('customer_name').value = ''
-document.getElementById('amount_paid').value = ''
+      slot.onclick = () => {
+        selectedField = field.id
+        selectedHour = hour
 
-selectedDuration = 2
+        // reset form
+        document.getElementById('customer_name').value = ''
+        document.getElementById('amount_paid').value = ''
 
-document.querySelectorAll('.duration button')
-  .forEach(btn => btn.classList.remove('active'))
+        selectedDuration = 2
 
-document.querySelectorAll('.duration button')[1].classList.add('active')
-    
-    document.getElementById('selectedSlot').innerText =
-      `${field.name} - ${hour}:00`
+        document.querySelectorAll('.duration button')
+          .forEach(btn => btn.classList.remove('active'))
 
-    document.getElementById('bookingModal').classList.remove('hidden')
-  }
-} else {
+        document.querySelectorAll('.duration button')[1]
+          .classList.add('active')
+
+        document.getElementById('selectedSlot').innerText =
+          `${field.name} - ${hour}:00`
+
+        document.getElementById('bookingModal')
+          .classList.remove('hidden')
+      }
+
+    } else {
       slot.innerText = booking.payment_status
+
+      // (next step: edit booking)
+      slot.onclick = () => {
+        alert('Edit booking (next step)')
+      }
     }
 
     calendar.appendChild(slot)
   })
-  } // end loop
+}
 
 // =======================
-// TARUH FUNCTION DI SINI
+// FUNCTIONS
 // =======================
 
 window.closeModal = () => {
@@ -133,7 +142,11 @@ window.setDuration = (d, el) => {
 
 window.submitBooking = async () => {
   try {
-    const amount = parseInt(document.getElementById('amount_paid').value || 0)
+    document.body.style.pointerEvents = 'none'
+
+    const amount = parseInt(
+      document.getElementById('amount_paid').value || 0
+    )
 
     await createBooking({
       p_field_id: selectedField,
@@ -149,6 +162,8 @@ window.submitBooking = async () => {
 
   } catch (e) {
     alert(e.message)
+  } finally {
+    document.body.style.pointerEvents = 'auto'
   }
 }
 </script>
