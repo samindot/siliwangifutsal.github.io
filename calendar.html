@@ -1,59 +1,90 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
 <body>
-  <h2>Admin Calendar</h2>
-  <button onclick="logout()">Logout</button>
 
-  <div id="calendar"></div>
+<div class="app">
+  <aside class="sidebar">
+    <h2>Futsal Admin</h2>
+    <button onclick="logout()">Logout</button>
+  </aside>
 
-  <script type="module">
-    import { requireAuth, logout } from './js/auth.js'
-    import { getBookings, createBooking } from './js/api.js'
+  <main class="main">
+    <div class="header">
+      <h2>Booking Calendar</h2>
+    </div>
 
-    window.logout = logout
+    <div id="calendar" class="calendar-grid"></div>
+  </main>
+</div>
 
-    await requireAuth()
+<script type="module">
+import { requireAuth, logout } from './js/auth.js'
+import { getBookings, createBooking } from './js/api.js'
 
-    const today = new Date().toISOString().split('T')[0]
-    const bookings = await getBookings(today)
+window.logout = logout
+await requireAuth()
 
-    const container = document.getElementById('calendar')
+const fields = [
+  { id: 'FIELD_ID_1', name: 'Lap 1' },
+  { id: 'FIELD_ID_2', name: 'Lap 2' },
+  { id: 'FIELD_ID_3', name: 'Lap 3' },
+  { id: 'FIELD_ID_4', name: 'Lap 4' }
+]
 
-    for (let hour = 8; hour <= 22; hour++) {
-      const slot = document.createElement('div')
-      slot.innerText = `${hour}:00`
+const today = new Date().toISOString().split('T')[0]
+const bookings = await getBookings(today)
 
-      const booking = bookings.find(b =>
-        hour >= b.start_time && hour < b.end_time
-      )
+const calendar = document.getElementById('calendar')
 
-      if (booking) {
-        slot.style.background = getColor(booking.payment_status)
-      } else {
-        slot.onclick = async () => {
-          try {
-            await createBooking({
-              p_field_id: 'FIELD_ID_LAP1',
-              p_date: today,
-              p_start: hour,
-              p_duration: 2,
-              p_amount_paid: 0
-            })
-            location.reload()
-          } catch (e) {
-            alert(e.message)
-          }
+// header row
+calendar.innerHTML = `<div class="time-col"></div>` +
+  fields.map(f => `<div class="col-header">${f.name}</div>`).join('')
+
+// rows
+for (let hour = 8; hour <= 22; hour++) {
+  calendar.innerHTML += `<div class="time-col">${hour}:00</div>`
+
+  fields.forEach(field => {
+    const booking = bookings.find(b =>
+      b.field_id === field.id &&
+      hour >= b.start_time &&
+      hour < b.end_time
+    )
+
+    let className = 'slot'
+    if (booking) {
+      className += ' ' + booking.payment_status
+    }
+
+    const slot = document.createElement('div')
+    slot.className = className
+
+    if (!booking) {
+      slot.onclick = async () => {
+        try {
+          await createBooking({
+            p_field_id: field.id,
+            p_date: today,
+            p_start: hour,
+            p_duration: 2,
+            p_amount_paid: 0
+          })
+          location.reload()
+        } catch (e) {
+          alert(e.message)
         }
       }
-
-      container.appendChild(slot)
+    } else {
+      slot.innerText = booking.payment_status
     }
 
-    function getColor(status) {
-      if (status === 'paid') return 'green'
-      if (status === 'partial') return 'yellow'
-      return 'red'
-    }
-  </script>
+    calendar.appendChild(slot)
+  })
+}
+</script>
+
 </body>
 </html>
