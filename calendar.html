@@ -86,27 +86,61 @@ for (let hour = 8; hour <= 22; hour++) {
     const slot = document.createElement('div')
     slot.className = className
 
-    if (!booking) {
-      slot.onclick = async () => {
-        try {
-          await createBooking({
-            p_field_id: field.id,
-            p_date: today,
-            p_start: hour,
-            p_duration: 2,
-            p_amount_paid: 0
-          })
-          location.reload()
-        } catch (e) {
-          alert(e.message)
-        }
-      }
-    } else {
+if (!booking) {
+  slot.onclick = () => {
+    selectedField = field.id
+    selectedHour = hour
+
+    document.getElementById('selectedSlot').innerText =
+      `${field.name} - ${hour}:00`
+
+    document.getElementById('bookingModal').classList.remove('hidden')
+  }
+} else {
       slot.innerText = booking.payment_status
     }
 
     calendar.appendChild(slot)
   })
+  } // end loop
+
+// =======================
+// TARUH FUNCTION DI SINI
+// =======================
+
+window.closeModal = () => {
+  document.getElementById('bookingModal').classList.add('hidden')
+}
+
+window.setDuration = (d, el) => {
+  selectedDuration = d
+
+  document.querySelectorAll('.duration button')
+    .forEach(btn => btn.classList.remove('active'))
+
+  el.classList.add('active')
+}
+
+window.submitBooking = async () => {
+  try {
+    const amount = parseInt(document.getElementById('amount_paid').value || 0)
+
+    await createBooking({
+      p_field_id: selectedField,
+      p_date: today,
+      p_start: selectedHour,
+      p_duration: selectedDuration,
+      p_amount_paid: amount,
+      p_notes: document.getElementById('customer_name').value
+    })
+
+    closeModal()
+    location.reload()
+
+  } catch (e) {
+    alert(e.message)
+  }
+}
 }
 </script>
 
